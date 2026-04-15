@@ -1,5 +1,5 @@
 {
-    "name": "ermtraud/xsd-to-php-runtime",
+    "name": "ermtraud/xml-runtime",
     "description": "XML serialization and deserialization runtime for attribute-mapped PHP classes.",
     "type": "library",
     "license": "MIT",
@@ -29,5 +29,7 @@
     },
     "scripts": {
         "test": "phpunit"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
