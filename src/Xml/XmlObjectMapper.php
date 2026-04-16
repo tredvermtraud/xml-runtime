@@ -250,11 +250,60 @@ final class XmlObjectMapper implements XmlCodecInterface
             return $document->createElementNS($metadata->namespace, $metadata->name);
         }
 
-        if ($parent->namespaceURI !== null) {
-            return $document->createElementNS($parent->namespaceURI, $metadata->name);
+        [$fallbackNamespace, $fallbackPrefix] = $this->resolveFallbackNamespace($parent);
+
+        if ($fallbackNamespace !== null) {
+            if ($fallbackPrefix !== null) {
+                return $document->createElementNS($fallbackNamespace, $fallbackPrefix . ':' . $metadata->name);
+            }
+
+            return $document->createElementNS($fallbackNamespace, $metadata->name);
         }
 
         return $document->createElement($metadata->name);
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function resolveFallbackNamespace(DOMElement $parent): array
+    {
+        return match ($this->config->fallbackNamespace) {
+            XmlConfig::FALLBACK_NAMESPACE_PARENT => $this->namespaceContextFromElement($parent),
+            XmlConfig::FALLBACK_NAMESPACE_ROOT => $this->namespaceContextFromRoot($parent),
+            XmlConfig::FALLBACK_NAMESPACE_NONE => [null, null],
+        };
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function namespaceContextFromRoot(DOMElement $parent): array
+    {
+        $root = $parent->ownerDocument?->documentElement;
+        if (!$root instanceof DOMElement) {
+            return [null, null];
+        }
+
+        return $this->namespaceContextFromElement($root);
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function namespaceContextFromElement(DOMElement $element): array
+    {
+        $namespace = $element->namespaceURI;
+        if ($namespace === null || $namespace === '') {
+            return [null, null];
+        }
+
+        $prefix = $element->prefix;
+        if ($prefix === '') {
+            $prefix = null;
+        }
+
+        return [$namespace, $prefix];
     }
 
     /**

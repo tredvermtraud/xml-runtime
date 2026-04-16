@@ -145,6 +145,7 @@ $config = XmlConfig::fromArray([
     'encoding' => 'UTF-8',
     'format_output' => true,
     'write_root_namespaces' => false,
+    'fallback_namespace' => 'parent',
 ]);
 
 $mapper = new XmlObjectMapper($config);
@@ -155,6 +156,9 @@ Configuration options:
 - `encoding`: Character encoding (default: "UTF-8")
 - `format_output`: Pretty-print XML (default: true)
 - `write_root_namespaces`: Include namespace declarations in root element (default: false)
+- `fallback_namespace`: Namespace fallback for elements without an explicit `namespace`; use `parent`, `root`, or `none` (default: `parent`)
+
+`fallback_namespace` affects serialization only and controls which namespace or element prefix is used when an `XmlElement` does not declare its own `namespace`.
 
 ## API Reference
 
@@ -209,5 +213,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.</content>
-<parameter name="filePath">c:\Users\Runkel.ASGARD\Documents\Projects\ermtraud\xml-runtime\README.md
+Contributions are welcome! Please feel free to submit a Pull Request.
