@@ -219,6 +219,7 @@ final class XmlObjectMapper implements XmlCodecInterface
     private function readRootMetadata(ReflectionClass $reflection): XmlRoot
     {
         $attributes = $reflection->getAttributes(XmlRoot::class);
+        error_log(print_r($attributes, true));
         if ($attributes === []) {
             return new XmlRoot($reflection->getShortName());
         }
