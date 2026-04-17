@@ -122,6 +122,9 @@ final class XmlObjectMapper implements XmlCodecInterface
     private function writeValue(DOMDocument $document, DOMElement $element, mixed $value, array $namespaceDeclarations = []): void
     {
         if (is_scalar($value)) {
+            if(is_bool($value)) {
+                $value = $value ? 'true' : 'false';
+            }
             $element->appendChild($document->createTextNode((string) $value));
             return;
         }
