@@ -47,8 +47,11 @@ final class XmlObjectMapper implements XmlCodecInterface
             ? $rootMetadata->namespaces
             : [];
 
+        $prefix = $this->preferredPrefixForNamespace($namespaceDeclarations, $rootMetadata->namespace);
+        $prefix = $prefix !== null ? $prefix . ':' : '';
+
         $root = $rootMetadata->namespace !== null
-            ? $document->createElementNS($rootMetadata->namespace, $rootMetadata->name)
+            ? $document->createElementNS($rootMetadata->namespace, $prefix.$rootMetadata->name)
             : $document->createElement($rootMetadata->name);
 
         $document->appendChild($root);
@@ -219,7 +222,6 @@ final class XmlObjectMapper implements XmlCodecInterface
     private function readRootMetadata(ReflectionClass $reflection): XmlRoot
     {
         $attributes = $reflection->getAttributes(XmlRoot::class);
-        error_log(print_r($attributes, true));
         if ($attributes === []) {
             return new XmlRoot($reflection->getShortName());
         }
