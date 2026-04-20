@@ -47,11 +47,11 @@ final class XmlObjectMapper implements XmlCodecInterface
             ? $rootMetadata->namespaces
             : [];
 
-        $prefix = $this->preferredPrefixForNamespace($namespaceDeclarations, $rootMetadata->namespace);
-        $prefix = $prefix !== null ? $prefix . ':' : '';
+        $rootPrefix = $this->preferredPrefixForNamespace($namespaceDeclarations, $rootMetadata->namespace);
+        $rootQualifiedName = $this->qualifyElementName($rootMetadata->name, $rootPrefix);
 
         $root = $rootMetadata->namespace !== null
-            ? $document->createElementNS($rootMetadata->namespace, $prefix.$rootMetadata->name)
+            ? $document->createElementNS($rootMetadata->namespace, $rootQualifiedName)
             : $document->createElement($rootMetadata->name);
 
         $document->appendChild($root);
@@ -250,7 +250,7 @@ final class XmlObjectMapper implements XmlCodecInterface
         if ($metadata->namespace !== null) {
             $prefix = $this->preferredPrefixForNamespace($namespaceDeclarations, $metadata->namespace);
             if ($prefix !== null && $metadata->namespace !== $parent->namespaceURI) {
-                return $document->createElementNS($metadata->namespace, $prefix . ':' . $metadata->name);
+                return $document->createElementNS($metadata->namespace, $this->qualifyElementName($metadata->name, $prefix));
             }
 
             return $document->createElementNS($metadata->namespace, $metadata->name);
@@ -260,7 +260,7 @@ final class XmlObjectMapper implements XmlCodecInterface
 
         if ($fallbackNamespace !== null) {
             if ($fallbackPrefix !== null) {
-                return $document->createElementNS($fallbackNamespace, $fallbackPrefix . ':' . $metadata->name);
+                return $document->createElementNS($fallbackNamespace, $this->qualifyElementName($metadata->name, $fallbackPrefix));
             }
 
             return $document->createElementNS($fallbackNamespace, $metadata->name);
@@ -338,6 +338,15 @@ final class XmlObjectMapper implements XmlCodecInterface
         }
 
         return null;
+    }
+
+    private function qualifyElementName(string $name, ?string $prefix): string
+    {
+        if ($prefix === null || str_contains($name, ':')) {
+            return $name;
+        }
+
+        return $prefix . ':' . $name;
     }
 
     /**
