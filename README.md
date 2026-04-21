@@ -8,7 +8,7 @@ A lightweight PHP library for XML serialization and deserialization using attrib
 
 ## Features
 
-- **Attribute-based Mapping**: Use PHP 8.1+ attributes to define XML structure
+- **Attribute-based Mapping**: Use PHP 8.3+ attributes to define XML structure
 - **Namespace Support**: Full support for XML namespaces and prefixes
 - **Type Safety**: Automatic type casting for primitive types (int, float, bool, string)
 - **Array Handling**: Support for lists and collections
@@ -208,52 +208,30 @@ Run tests with PHPUnit:
 composer test
 ```
 
+GitHub Actions runs the `CI` workflow on every push to `main` and on pull requests targeting `main`. The workflow validates `composer.json`, installs dependencies, and runs the test suite on PHP `8.3` and `8.4`.
+
 ## Release Process
 
-This repository uses a tag-based release model with a stable `main` branch and a continuously testable `staging` branch.
+This repository uses `Release Please` on `main`. Releases are prepared from merged changes on `main`; there is no separate `staging` prerelease branch and no manual tag-push release flow.
 
-- `main`: production-ready history only
-- `staging`: release-candidate integration branch
-- `feature/*`: feature work merged into `staging`
-- `hotfix/*`: urgent fixes branched from `main`, merged back to `main`, then back-merged into `staging`
+### Automated Release Flow
 
-### Prereleases From `staging`
+1. Open a pull request against `main`.
+2. Let the `CI` workflow pass.
+3. Merge the pull request into `main`.
+4. The `Release` workflow runs on that push and uses Release Please to open or update a release pull request.
+5. Review and merge the generated release pull request when you are ready to publish.
+6. After the release pull request is merged, Release Please creates the GitHub release and version tag from `main`.
 
-Every push to `staging` runs CI and, if it passes, publishes a GitHub prerelease with an auto-managed `staging-<short-sha>` tag. Older auto-generated staging prereleases are cleaned up first so the repository keeps one current prerelease instead of accumulating noise.
+### Commit Message Conventions
 
-Developer flow:
+Release Please derives the version bump and release notes from Conventional Commits on `main`.
 
-1. Merge feature branches into `staging`.
-2. Push `staging`.
-3. Wait for the `Prerelease On Staging` workflow to pass.
-4. Test the generated GitHub prerelease artifacts and notes.
+- `fix:` triggers a patch release
+- `feat:` triggers a minor release
+- `feat!:` or a `BREAKING CHANGE:` footer triggers a major release
 
-### Production Releases From `main`
-
-Production releases are created only from SemVer tags such as `v1.2.0` or `v2.0.1`. The release workflow verifies that the tagged commit is reachable from `main`, reruns CI, packages the library, and creates a full GitHub Release.
-
-Developer flow:
-
-1. Merge the validated release candidate from `staging` into `main`.
-2. Create and push a production tag from `main`, for example:
-
-```bash
-git checkout main
-git pull --ff-only
-git tag v1.2.0
-git push origin v1.2.0
-```
-
-3. Wait for the `Release On Version Tag` workflow to publish the official GitHub Release.
-
-### Hotfix Flow
-
-Hotfixes branch from `main`, not `staging`.
-
-1. Create `hotfix/<name>` from `main`.
-2. Merge the hotfix into `main`.
-3. Tag the merge commit on `main` with the next production version and push the tag.
-4. Back-merge the hotfix changes into `staging` so the next prerelease includes them.
+If no releasable changes are detected, Release Please will not open a release pull request.
 
 ## License
 
@@ -261,4 +239,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please open a pull request against `main` and prefer Conventional Commit messages so automated release notes and versioning stay accurate.
